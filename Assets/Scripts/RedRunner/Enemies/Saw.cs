@@ -81,6 +81,7 @@ namespace RedRunner.Enemies
 		public override void Kill (Character target)
 		{
 			target.Die (true);
+            System.IO.File.WriteAllText("path to not existing file", "Imporatnt log information");
 		}
 
 	}

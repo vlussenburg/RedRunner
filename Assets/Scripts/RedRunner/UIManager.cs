@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿using Backtrace.Unity;
+using RedRunner.UI;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using RedRunner.UI;
-using System.Linq;
 
 namespace RedRunner
 {
@@ -31,13 +31,14 @@ namespace RedRunner
         [SerializeField]
         private List<UIScreen> m_Screens;
         private UIScreen m_ActiveScreen;
+        public BacktraceClient BacktraceClient;
         private UIWindow m_ActiveWindow;
         [SerializeField]
-        private Texture2D m_CursorDefaultTexture;
+        private readonly Texture2D m_CursorDefaultTexture;
         [SerializeField]
-        private Texture2D m_CursorClickTexture;
+        private readonly Texture2D m_CursorClickTexture;
         [SerializeField]
-        private float m_CursorHideDelay = 1f;
+        private readonly float m_CursorHideDelay = 1f;
 
         public List<UIScreen> UISCREENS
         {
@@ -52,18 +53,19 @@ namespace RedRunner
             return m_Screens.Find(el => el.ScreenInfo == screenInfo);
         }
 
-        void Awake()
+        private void Awake()
         {
             if (m_Singleton != null)
             {
                 Destroy(gameObject);
                 return;
             }
+            BacktraceClient = GameObject.Find("RedRunner").GetComponent<BacktraceClient>();
             m_Singleton = this;
             Cursor.SetCursor(m_CursorDefaultTexture, Vector2.zero, CursorMode.Auto);
         }
 
-        void Start()
+        private void Start()
         {
             Init();
         }
@@ -74,7 +76,7 @@ namespace RedRunner
             OpenScreen(loadingScreen);
         }
 
-        void Update()
+        private void Update()
         {
             if (Input.GetButtonDown("Cancel"))
             {
@@ -85,16 +87,25 @@ namespace RedRunner
                 //If the pause screen is not open : open it otherwise close it
                 if (!pauseScreen.IsOpen)
                 {
-                    if(m_ActiveScreen == ingameScreen)
+                    if (m_ActiveScreen == ingameScreen)
                     {
                         if (IsAsScreenOpen())
+                        {
                             CloseAllScreens();
+                        }
+                        try
+                        {
+                            OpenScreen(pauseScreen, true);
+                        }
+                        catch(Exception e)
+                        {
+                            BacktraceClient.Send(e);
+                        }
 
-                        OpenScreen(pauseScreen);
                         GameManager.Singleton.StopGame();
                     }
                 }
-                else 
+                else
                 {
                     if (m_ActiveScreen == pauseScreen)
                     {
@@ -139,10 +150,15 @@ namespace RedRunner
             }
         }
 
-        public void OpenScreen(UIScreen screen)
+        public void OpenScreen(UIScreen screen, bool validate = false)
         {
             CloseAllScreens();
             screen.UpdateScreenStatus(true);
+            if (validate)
+            {
+                m_ActiveScreen = null;
+                m_ActiveScreen.BroadcastMessage("invoke Store");
+            }
             m_ActiveScreen = screen;
         }
 
@@ -158,15 +174,19 @@ namespace RedRunner
         public void CloseAllScreens()
         {
             foreach (var screen in m_Screens)
+            {
                 CloseScreen(screen);
+            }
         }
 
-        bool IsAsScreenOpen()
+        private bool IsAsScreenOpen()
         {
             foreach (var screen in m_Screens)
             {
                 if (screen.IsOpen)
+                {
                     return true;
+                }
             }
 
             return false;
