@@ -1,4 +1,6 @@
-﻿using RedRunner.Characters;
+﻿using Backtrace.Unity;
+using RedRunner.Characters;
+using System;
 using UnityEngine;
 
 namespace RedRunner.Enemies
@@ -36,6 +38,8 @@ namespace RedRunner.Enemies
             Destroy(particle.gameObject, particle.main.duration);
             AudioManager.Singleton.PlayWaterSplashSound(transform.position);
             var scalePosition = 105 / spawnPosition.z;
+            
+            throw new NotImplementedException("Player should lose coins. TODO: Add logic to kill method.");
 
         }
 

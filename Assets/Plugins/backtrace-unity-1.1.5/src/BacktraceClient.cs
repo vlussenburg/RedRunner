@@ -249,11 +249,6 @@ namespace Backtrace.Unity
 
         public void HandleUnhandledExceptions()
         {
-            Application.logMessageReceivedThreaded += (string msg,string stackTrace, LogType type) => {
-                Debug.Log("Log message received from thread");
-                HandleException(msg, stackTrace, type);
-            };
-            
             Application.logMessageReceived += HandleException;
         }
 

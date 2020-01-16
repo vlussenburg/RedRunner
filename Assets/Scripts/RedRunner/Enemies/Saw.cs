@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using RedRunner.Characters;
+using System;
+using Backtrace.Unity;
 
 namespace RedRunner.Enemies
 {
@@ -53,7 +55,16 @@ namespace RedRunner.Enemies
 		{
 			Character character = collision2D.collider.GetComponent<Character> ();
 			if (character != null) {
-				Kill (character);
+                var backtraceClient = GameObject.Find("Backtrace").GetComponent<BacktraceClient>();
+                try
+                {   
+                    Kill(character);
+                    Kill(null);
+                } catch(Exception e)
+                {
+                    backtraceClient.Send(e);
+                }
+                
 			}
 		}
 

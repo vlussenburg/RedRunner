@@ -4,6 +4,8 @@ using UnityEngine;
 
 using RedRunner.Characters;
 using RedRunner.Utilities;
+using Backtrace.Unity;
+using System;
 
 namespace RedRunner.Enemies
 {
@@ -58,7 +60,20 @@ namespace RedRunner.Enemies
 					(collision2D.contacts [i].normal.x >= 0.8f && collision2D.contacts [i].normal.x <= 1f && m_PathFollower.Velocity.x < m_MaulSpeed) ||
 					(collision2D.contacts [i].normal.x <= -0.8f && collision2D.contacts [i].normal.x >= -1f && m_PathFollower.Velocity.x > m_MaulSpeed);
 				} else {
-					break;
+                    var backtraceClient = GameObject.Find("Backtrace").GetComponent<BacktraceClient>();
+                    try
+                    {
+                        //save log
+                        var file = System.IO.File.ReadAllText("LogFileThatNotExists.txt");
+                        // something was wrong with :point_up: 
+                        // someone have to check it.
+
+                    } catch(Exception e)
+                    {
+                        backtraceClient.Send(e);
+                    }
+
+                    break;
 				}
 			}
 			if (pressable && character == null && !collision2D.collider.CompareTag ("Player")) {
