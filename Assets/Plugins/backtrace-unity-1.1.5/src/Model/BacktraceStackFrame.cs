@@ -69,6 +69,10 @@ namespace Backtrace.Unity.Model
                 ["library"] = Library
             };
 
+ if (!string.IsNullOrEmpty(Library))
+            {
+                stackFrame["library"] = Library;
+            }
             //todo: source code information
 
             return stackFrame;
